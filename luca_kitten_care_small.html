@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luca's Kitten Care</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange:#FF6B35; --orange-light:#FFF0E8; --orange-mid:#FFCBA4;
+  --green:#3B6D11; --green-light:#EAF3DE; --green-mid:#97C459;
+  --amber:#BA7517; --amber-light:#FAEEDA;
+  --red:#A32D2D; --red-light:#FDEAEA;
+  --blue:#185FA5; --blue-light:#E6F1FB;
+  --purple:#534AB7; --purple-light:#EEEDFE;
+  --teal:#0E7490; --teal-light:#E0F7FA;
+  --bg:#FFF8F4; --card:#FFFFFF; --text:#1E1B18; --muted:#7A6E67; --border:#EDE0D8;
+  --radius:16px; --radius-sm:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#FF6B35 0%,#FF9A3C 100%);padding:18px 20px 32px;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.08);}
+.header::after{content:'';position:absolute;bottom:-30px;left:25%;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.05);}
+.header-inner{display:flex;align-items:flex-start;gap:14px;position:relative;z-index:1;}
+.kitten-avatar-wrap{position:relative;flex-shrink:0;}
+.kitten-avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.9);box-shadow:0 4px 16px rgba(0,0,0,0.2);}
+.smile-overlay{position:absolute;bottom:2px;right:2px;font-size:16px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3));}
+.header-text{flex:1;}
+.header-title{font-family:'Fredoka One',cursive;font-size:24px;color:#fff;line-height:1.1;}
+.header-sub{font-size:12px;color:rgba(255,255,255,0.85);margin-top:3px;}
+.kitten-age-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.2);border-radius:20px;padding:3px 10px;font-size:11px;color:#fff;font-weight:700;margin-top:5px;}
+.week-nav{display:flex;align-items:center;gap:8px;margin-top:12px;position:relative;z-index:1;}
+.week-btn{background:rgba(255,255,255,0.2);border:none;border-radius:8px;color:#fff;width:28px;height:28px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
+.week-btn:hover{background:rgba(255,255,255,0.35);}
+.week-label{font-size:12px;color:rgba(255,255,255,0.95);font-weight:800;min-width:72px;text-align:center;}
+.week-range{font-size:10px;color:rgba(255,255,255,0.7);margin-left:4px;}
+
+.main{padding:14px;max-width:700px;margin:0 auto;}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;margin-top:-20px;}
+.metric-card{background:var(--card);border-radius:var(--radius-sm);padding:11px 8px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.07);}
+.mlabel{font-size:9px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;}
+.mvalue{font-family:'Fredoka One',cursive;font-size:20px;line-height:1;}
+.msub{font-size:9px;color:var(--muted);margin-top:2px;}
+.good{color:var(--green);} .warn{color:var(--amber);} .bad{color:var(--red);}
+
+.section-label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;}
+
+/* DAY ROW */
+.day-row{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:14px;}
+.day-card{background:var(--card);border-radius:var(--radius-sm);padding:7px 3px;text-align:center;cursor:pointer;border:2px solid transparent;transition:all 0.15s;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+.day-card:hover{border-color:var(--orange-mid);}
+.day-card.selected{border-color:var(--orange);background:var(--orange-light);}
+.day-card.today-card{border-color:var(--blue);}
+.day-name{font-size:9px;font-weight:800;color:var(--muted);margin-bottom:3px;}
+.day-pct{font-family:'Fredoka One',cursive;font-size:14px;}
+.day-bar-bg{width:14px;height:36px;background:#F0EAE5;border-radius:5px;margin:4px auto 0;overflow:hidden;display:flex;align-items:flex-end;}
+.day-bar-fill{width:100%;border-radius:5px;transition:height 0.5s cubic-bezier(.4,0,.2,1);}
+
+/* CARDS */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.card{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:14px;}
+.card-title{font-size:12px;font-weight:800;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:5px;}
+
+/* CHECKLIST */
+.checklist{display:flex;flex-direction:column;gap:5px;}
+.task-item{display:flex;align-items:center;gap:8px;background:#FAFAF8;border-radius:8px;padding:8px 10px;cursor:pointer;transition:all 0.15s;border:1.5px solid transparent;}
+.task-item:hover{border-color:var(--orange-mid);}
+.task-item.done{background:var(--green-light);}
+.task-check{width:20px;height:20px;border-radius:50%;border:2px solid #D0C8C0;background:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0;transition:all 0.2s;}
+.task-item.done .task-check{background:var(--green);border-color:var(--green);}
+.task-label{font-size:11px;flex:1;font-weight:600;transition:color 0.15s;}
+.task-item.done .task-label{color:var(--muted);text-decoration:line-through;}
+.tag{font-size:9px;padding:2px 6px;border-radius:7px;font-weight:700;}
+.tag-morning{background:var(--amber-light);color:var(--amber);}
+.tag-after{background:var(--blue-light);color:var(--blue);}
+.tag-evening{background:var(--purple-light);color:var(--purple);}
+.tag-bedtime{background:#F1EFE8;color:#444;}
+.tag-weekend{background:var(--green-light);color:var(--green);}
+
+/* RING */
+.progress-ring-wrap{display:flex;justify-content:center;align-items:center;margin:6px 0;position:relative;}
+svg.ring{transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:#EDE0D8;stroke-width:8;}
+.ring-fill{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 0.6s cubic-bezier(.4,0,.2,1);}
+.ring-label{position:absolute;text-align:center;}
+
+/* STREAKS */
+.streak-list{display:flex;flex-direction:column;gap:7px;}
+.streak-item{display:flex;align-items:center;gap:7px;}
+.streak-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.streak-name{font-size:11px;color:var(--text);flex:1;}
+.streak-bar-bg{height:5px;flex:2;background:#F0EAE5;border-radius:4px;overflow:hidden;}
+.streak-bar-fill{height:100%;border-radius:4px;transition:width 0.5s ease;}
+.streak-count{font-family:'Fredoka One',cursive;font-size:13px;min-width:26px;text-align:right;}
+
+/* CHART */
+.chart-wrap{position:relative;height:120px;width:100%;}
+
+/* HEAT MAP */
+.heat-row{display:grid;grid-template-columns:34px repeat(7,1fr);gap:3px;align-items:center;margin-bottom:3px;}
+.heat-row-label{font-size:9px;color:var(--muted);font-weight:800;}
+.heat-cell{aspect-ratio:1;border-radius:4px;cursor:pointer;transition:transform 0.1s;}
+.heat-cell:hover{transform:scale(1.2);}
+
+/* BADGES */
+.badges-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.badge{background:#FAFAF8;border-radius:12px;padding:10px 6px;text-align:center;border:2px solid #EDE0D8;transition:all 0.2s;}
+.badge.earned{background:linear-gradient(135deg,#FFFDE7,#FFF8E1);border-color:#FFD700;box-shadow:0 2px 8px rgba(255,215,0,0.3);}
+.badge-icon{font-size:24px;margin-bottom:4px;filter:grayscale(1);opacity:0.4;transition:all 0.3s;}
+.badge.earned .badge-icon{filter:none;opacity:1;}
+.badge-name{font-size:9px;font-weight:800;color:var(--muted);line-height:1.2;}
+.badge.earned .badge-name{color:var(--amber);}
+.badge-locked{font-size:8px;color:#C0B8B0;margin-top:2px;}
+
+/* FEEDING SCHEDULE */
+.feed-timeline{display:flex;flex-direction:column;gap:0;}
+.feed-phase{border-left:3px solid var(--orange);padding-left:12px;margin-bottom:12px;position:relative;}
+.feed-phase::before{content:'';position:absolute;left:-6px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--orange);}
+.feed-phase-label{font-size:10px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:0.05em;}
+.feed-phase-title{font-size:13px;font-weight:700;color:var(--text);margin:2px 0;}
+.feed-phase-desc{font-size:11px;color:var(--muted);line-height:1.5;}
+
+/* KITTEN FACTS */
+.facts-carousel{position:relative;overflow:hidden;border-radius:12px;background:linear-gradient(135deg,#FFF0E8,#FFF8F4);padding:14px;}
+.fact-slide{display:none;}
+.fact-slide.active{display:flex;gap:10px;align-items:flex-start;}
+.fact-icon{font-size:28px;flex-shrink:0;}
+.fact-text{font-size:12px;color:var(--text);line-height:1.6;}
+.fact-title{font-weight:800;font-size:13px;color:var(--orange);margin-bottom:3px;}
+.fact-dots{display:flex;gap:4px;justify-content:center;margin-top:10px;}
+.fact-dot{width:6px;height:6px;border-radius:50%;background:#EDE0D8;cursor:pointer;transition:background 0.2s;}
+.fact-dot.active{background:var(--orange);}
+.facts-nav{display:flex;justify-content:space-between;margin-top:8px;}
+.facts-nav button{background:none;border:none;color:var(--orange);cursor:pointer;font-size:12px;font-weight:700;}
+
+/* MONTH TABS */
+.month-scroll{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;scrollbar-width:none;}
+.month-scroll::-webkit-scrollbar{display:none;}
+.month-tab{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.month-tab.active{background:var(--orange);border-color:var(--orange);color:#fff;}
+
+/* CONFETTI */
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;}
+.confetti-piece{position:absolute;width:8px;height:8px;top:-10px;animation:fall 1.6s ease-in forwards;border-radius:2px;}
+@keyframes fall{to{transform:translateY(100vh) rotate(720deg);opacity:0;}}
+
+/* KITTEN PANEL */
+.kitten-panel{background:linear-gradient(135deg,var(--orange-light),#FFF8F4);border-radius:var(--radius);padding:14px;margin-bottom:14px;display:flex;gap:12px;align-items:center;}
+.kitten-panel-img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--orange);box-shadow:0 4px 12px rgba(255,107,53,0.2);flex-shrink:0;}
+.kitten-panel-info h3{font-family:'Fredoka One',cursive;font-size:18px;color:var(--orange);}
+.kitten-panel-info p{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5;}
+
+.tips-list{display:flex;flex-direction:column;gap:7px;}
+.tip-item{display:flex;gap:8px;align-items:flex-start;}
+.tip-num{background:var(--orange);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.tip-text{font-size:11px;color:var(--text);line-height:1.5;}
+
+@media(max-width:480px){.two-col{grid-template-columns:1fr;}.metrics{grid-template-columns:repeat(2,1fr);}.badges-grid{grid-template-columns:repeat(3,1fr);}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="kitten-avatar-wrap">
+      <div class="kitten-avatar" style="display:flex;align-items:center;justify-content:center;font-size:36px;background:rgba(255,255,255,0.25);">🐱</div>
+      <span class="smile-overlay">😊</span>
+    </div>
+    <div class="header-text">
+      <div class="header-title">Luca's Kitten Care 🐱</div>
+      <div class="header-sub">Daily care tracker · bonding journey</div>
+      <div class="kitten-age-badge">🎂 10 weeks old</div>
+    </div>
+  </div>
+  <div class="week-nav">
+    <button class="week-btn" onclick="changeWeek(-1)">&#8249;</button>
+    <span class="week-label" id="weekLabel">This week</span>
+    <button class="week-btn" onclick="changeWeek(1)">&#8250;</button>
+    <span class="week-range" id="weekRange"></span>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="metrics" id="metricGrid"></div>
+
+  <p class="section-label">Tap a day to view &amp; tick tasks</p>
+  <div class="day-row" id="dayRow"></div>
+
+  <div class="two-col">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title">✅ Today's checklist <span style="margin-left:auto;font-size:10px;font-weight:600;color:var(--muted)" id="checkDay"></span></div>
+      <div class="checklist" id="checklist"></div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-title">🏆 Day progress</div>
+        <div class="progress-ring-wrap" style="height:90px">
+          <svg class="ring" width="86" height="86" viewBox="0 0 86 86">
+            <circle class="ring-bg" cx="43" cy="43" r="34"/>
+            <circle class="ring-fill" id="ringFill" cx="43" cy="43" r="34" stroke="#FF6B35" stroke-dasharray="214" stroke-dashoffset="214"/>
+          </svg>
+          <div class="ring-label">
+            <div style="font-family:'Fredoka One',cursive;font-size:20px" id="ringPct">0%</div>
+            <div style="font-size:9px;color:var(--muted)">done</div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="card-title">📈 Week chart</div>
+        <div class="chart-wrap"><canvas id="weekChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BADGES -->
+  <div class="card">
+    <div class="card-title">🥇 Luca's Badges <span id="badgeCount" style="margin-left:auto;font-size:10px;color:var(--muted)"></span></div>
+    <div class="badges-grid" id="badgesGrid"></div>
+  </div>
+
+  <!-- STREAK -->
+  <div class="card">
+    <div class="card-title">🔥 Task streaks</div>
+    <div class="streak-list" id="streakList"></div>
+  </div>
+
+  <!-- KITTEN FACTS -->
+  <div class="card">
+    <div class="card-title">🧠 Did you know? · Kitten facts</div>
+    <div class="facts-carousel" id="factsCarousel"></div>
+  </div>
+
+  <!-- 6 MONTH FEEDING -->
+  <div class="card">
+    <div class="card-title">🍽️ Kitten's feeding schedule · next 6 months</div>
+    <div class="month-scroll" id="monthTabs"></div>
+    <div id="feedContent"></div>
+  </div>
+
+  <!-- HEAT MAP -->
+  <div class="card">
+    <div class="card-title">🗓️ 6-month history</div>
+    <div style="display:grid;grid-template-columns:34px repeat(7,1fr);gap:3px;margin-bottom:5px">
+      <div></div>
+      <div style="font-size:9px;font-weight:800;color:var(--muted);text-align:center">M</div>
+      <div style="font-size:9px;font-weight:800;color:var(--muted);text-align:center">T</div>
+      <div style="font-size:9px;font-weight:800;color:var(--muted);text-align:center">W</div>
+      <div style="font-size:9px;font-weight:800;color:var(--muted);text-align:center">T</div>
+      <div style="font-size:9px;font-weight:800;color:var(--muted);text-align:center">F</div>
+      <div style="font-size:9px;font-weight:800;color:var(--muted);text-align:center">S</div>
+      <div style="font-size:9px;font-weight:800;color:var(--muted);text-align:center">S</div>
+    </div>
+    <div id="heatGrid"></div>
+    <div style="display:flex;align-items:center;gap:4px;margin-top:8px">
+      <span style="font-size:9px;color:var(--muted)">Less</span>
+      <div style="width:10px;height:10px;border-radius:2px;background:#EAF3DE"></div>
+      <div style="width:10px;height:10px;border-radius:2px;background:#C0DD97"></div>
+      <div style="width:10px;height:10px;border-radius:2px;background:#639922"></div>
+      <div style="width:10px;height:10px;border-radius:2px;background:#3B6D11"></div>
+      <span style="font-size:9px;color:var(--muted)">More</span>
+    </div>
+  </div>
+
+  <!-- TIPS -->
+  <div class="card" style="background:linear-gradient(135deg,var(--orange-light),#FFF8F4)">
+    <div class="card-title">💡 Bonding tips for Luca</div>
+    <div class="tips-list">
+      <div class="tip-item"><div class="tip-num">1</div><div class="tip-text">Always feed the kitten yourself — cats bond hardest with whoever holds the food bowl.</div></div>
+      <div class="tip-item"><div class="tip-num">2</div><div class="tip-text">Never use hands as toys — wand toys only. The kitten is learning what's prey right now!</div></div>
+      <div class="tip-item"><div class="tip-num">3</div><div class="tip-text">Leave a worn t-shirt in the kitten's bed — your scent = safety to a kitten this age.</div></div>
+      <div class="tip-item"><div class="tip-num">4</div><div class="tip-text">Move slowly, speak softly. At 10 weeks The kitten's senses are razor sharp.</div></div>
+      <div class="tip-item"><div class="tip-num">5</div><div class="tip-text">Be consistent! The kitten will bond 3x faster when your routine is predictable.</div></div>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:10px;color:var(--muted);padding:10px 0 20px">
+    🐾 Progress is saved in this browser. Every tick counts, Luca! 🐾
+  </div>
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const TASKS = [
+  {id:'breakfast',label:'Feed the kitten breakfast + fresh water',time:'morning',days:[0,1,2,3,4,5,6]},
+  {id:'play',     label:'Play session with wand/toy',        time:'after',  days:[0,1,2,3,4,5,6]},
+  {id:'treats',   label:'Hand-feed treats',                  time:'after',  days:[0,1,2,3,4,5,6]},
+  {id:'dinner',   label:'Feed the kitten dinner',                 time:'evening',days:[0,1,2,3,4,5,6]},
+  {id:'quiet',    label:'Quiet time together',               time:'evening',days:[0,1,2,3,4,5,6]},
+  {id:'sleep',    label:'Kitten sleeps in Luca's room',      time:'bedtime',days:[0,1,2,3,4,5,6]},
+  {id:'brush',    label:'Gentle brushing session',           time:'weekend',days:[5,6]},
+  {id:'litter',   label:'Clean litter box',                  time:'weekend',days:[5,6]},
+  {id:'extended', label:'15+ min bonding session',           time:'weekend',days:[5,6]},
+];
+
+const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const STREAK_COLORS = {morning:'#BA7517',after:'#185FA5',evening:'#534AB7',bedtime:'#888780',weekend:'#3B6D11'};
+const TAG_CLASS = {morning:'tag-morning',after:'tag-after',evening:'tag-evening',bedtime:'tag-bedtime',weekend:'tag-weekend'};
+const TAG_LABEL = {morning:'Morning',after:'After school',evening:'Evening',bedtime:'Bedtime',weekend:'Weekend'};
+
+const TOTAL_WEEKS = 26; // 6 months
+
+const BADGES = [
+  {id:'first_task',   icon:'🌱', name:'First Step',     desc:'Complete your first task',         check:(stats)=>stats.totalDone>=1},
+  {id:'first_100',    icon:'⭐', name:'Perfect Day',    desc:'100% on any single day',            check:(stats)=>stats.bestDayPct>=100},
+  {id:'full_week',    icon:'🔥', name:'Full Week',      desc:'70%+ every day for a whole week',  check:(stats)=>stats.hadFullWeek},
+  {id:'streak3',      icon:'💪', name:'3-Day Streak',   desc:'3 days in a row 70%+',             check:(stats)=>stats.maxStreak>=3},
+  {id:'streak7',      icon:'🏅', name:'Week Warrior',   desc:'7 days in a row',                  check:(stats)=>stats.maxStreak>=7},
+  {id:'streak14',     icon:'🥈', name:'Fortnight Hero', desc:'14 days in a row',                 check:(stats)=>stats.maxStreak>=14},
+  {id:'streak30',     icon:'🥇', name:'Month Master',   desc:'30 days in a row',                 check:(stats)=>stats.maxStreak>=30},
+  {id:'brushx5',      icon:'🪮', name:'Groomer',        desc:'Brushed the kitten 5 times',            check:(stats)=>stats.brushCount>=5},
+  {id:'litter10',     icon:'🧹', name:'Tidy Kitten',    desc:'Cleaned litter 10 times',          check:(stats)=>stats.litterCount>=10},
+  {id:'total50',      icon:'🎯', name:'50 Tasks',       desc:'Completed 50 tasks total',         check:(stats)=>stats.totalDone>=50},
+  {id:'total100',     icon:'💯', name:'100 Tasks',      desc:'Completed 100 tasks total',        check:(stats)=>stats.totalDone>=100},
+  {id:'month1',       icon:'🐣', name:'1 Month!',       desc:'Using the tracker for 4 weeks',    check:(stats)=>stats.weeksActive>=4},
+];
+
+const KITTEN_FACTS = [
+  {icon:'👁️', title:'The kitten's eyes are a wonder', text:'At 10 weeks, The kitten's eyes are transitioning from baby blue to their permanent colour. This change happens between 6–12 weeks and is totally unique to each cat!'},
+  {icon:'🧠', title:'The kitten is a genius in training', text:'Right now is the kitten's "prime learning window" — kittens handled 15–40 minutes a day at this age develop larger brains and are better learners for life. That's Luca's superpower!'},
+  {icon:'🏃', title:'The kitten is FAST', text:'At 10 weeks, locomotory play is fully developed. The kitten can now run, leap, twist mid-air and land perfectly. That racing around the house? Totally normal — and healthy!'},
+  {icon:'🎯', title:'Hunting mode: ON', text:'The kitten is practising hunting skills right now through play — stalking, pouncing, and batting. This is why wand toys are so important; they give these instincts a safe outlet.'},
+  {icon:'😴', title:'The kitten needs lots of sleep', text:'10-week-old kittens sleep up to 16–20 hours a day. After every play burst The kitten will crash hard — this is normal growth recovery, not laziness!'},
+  {icon:'🎵', title:'The kitten has a lot to say', text:'At this age kittens develop their full vocal range — meows, chirps, trills and purrs. The "feed me!" meow is especially loud. Try not to always reward it or you'll create a very vocal adult cat!'},
+  {icon:'❤️', title:'Bonding window is NOW', text:'The strongest human-cat bonds form between 7–14 weeks. Every hour Luca spends with the kitten right now is worth triple the bonding time later. This is a golden window!'},
+  {icon:'🦷', title:'Baby teeth check', text:'The kitten has all 26 baby teeth by now. Permanent teeth start coming in around 11–14 weeks. Gentle chew toys help with any teething discomfort.'},
+];
+
+const FEEDING_PHASES = [
+  {month:0, label:'Now · 10 weeks', title:'4 meals a day · wet kitten food',
+    desc:'The kitten needs 4 small meals spread through the day (e.g. 7am, 12pm, 5pm, 9pm). High-protein wet kitten food is ideal — about 5–6 teaspoons per meal. Always keep fresh water available. the kitten weighs about 850g right now.'},
+  {month:1, label:'Month 2 · ~3 months', title:'3–4 meals a day · wet + optional dry',
+    desc:'the kitten's rapid growth phase is in full swing. Increase portion size gradually as weight grows. Can introduce a small amount of dry kitten kibble alongside wet food. Aim for 3–4 meals daily. Weight target: around 1–1.2kg.'},
+  {month:2, label:'Month 3 · ~4 months', title:'3 meals a day',
+    desc:'Reduce to 3 meals per day. the kitten's stomach can handle larger portions now. Continue high-quality kitten food — look for real meat as the first ingredient. Portion size should match weight (check packaging). Weight: ~1.5kg.'},
+  {month:3, label:'Month 4 · ~5 months', title:'3 meals a day · object play peaks',
+    desc:'Object play peaks around 5 months — match Luca's play sessions to feeding times for a powerful bonding effect. Keep 3 meals a day. Consider a puzzle feeder for one meal to keep the kitten mentally stimulated.'},
+  {month:4, label:'Month 5 · ~6 months', title:'Transition to 2 meals a day',
+    desc:'Start transitioning to 2 meals per day (morning and evening). the kitten's calorie needs begin to stabilise. Keep kitten food — do NOT switch to adult food yet. The kitten may be approaching spay/neuter time; ask your vet.'},
+  {month:5, label:'Month 6 · ~7 months', title:'2 meals a day · almost adult routine',
+    desc:'Fully settled on 2 meals daily. The kitten is growing fast but growth rate is slowing. Continue kitten food until ~10 months. Weight target: 2.5–3.5kg depending on breed. Start planning the switch to adult food with your vet.'},
+];
+
+// ─── STATE ──────────────────────────────────────────────────────────────────
+const todayJS = new Date().getDay();
+const todayIdx = todayJS === 0 ? 6 : todayJS - 1;
+const state = { weekOffset:0, selectedDay:todayIdx, factIdx:0, feedMonth:0 };
+
+function storageKey(w,d){ return `kitten_w${w}_d${d}`; }
+function getData(w,d){
+  try{ const r=localStorage.getItem(storageKey(w,d)); return r?JSON.parse(r):{}; }catch{return {};}
+}
+function setData(w,d,obj){
+  try{ localStorage.setItem(storageKey(w,d),JSON.stringify(obj)); }catch{}
+}
+function getSeedData(w,d){
+  const obj={};
+  const isFuture = w===0 && d>todayIdx;
+  TASKS.forEach((t,ti)=>{
+    if(!t.days.includes(d)) return;
+    if(isFuture){obj[t.id]=false;return;}
+    const seed=(w+TOTAL_WEEKS)*100+d*10+ti;
+    obj[t.id]=seed%5!==0;
+  });
+  return obj;
+}
+function getDay(w,d){
+  const stored=getData(w,d);
+  if(Object.keys(stored).length>0) return stored;
+  if(w<0){const s=getSeedData(w,d);setData(w,d,s);return s;}
+  return {};
+}
+function getDayCompletion(w,d){
+  const applicable=TASKS.filter(t=>t.days.includes(d));
+  if(!applicable.length) return 0;
+  const data=getDay(w,d);
+  const done=applicable.filter(t=>data[t.id]).length;
+  return Math.round((done/applicable.length)*100);
+}
+function getBarColor(pct){
+  if(pct>=80) return '#3B6D11';
+  if(pct>=50) return '#BA7517';
+  return '#A32D2D';
+}
+
+// ─── STATS FOR BADGES ───────────────────────────────────────────────────────
+function computeStats(){
+  let totalDone=0, brushCount=0, litterCount=0, maxStreak=0, bestDayPct=0;
+  let currentStreak=0, hadFullWeek=false, weeksActive=0;
+  for(let w=-TOTAL_WEEKS+1;w<=0;w++){
+    let weekAllGood=true; let weekHasData=false;
+    for(let d=0;d<7;d++){
+      const data=getDay(w,d);
+      const applicable=TASKS.filter(t=>t.days.includes(d));
+      const done=applicable.filter(t=>data[t.id]).length;
+      totalDone+=done;
+      if(data.brush) brushCount++;
+      if(data.litter) litterCount++;
+      const pct=applicable.length?Math.round((done/applicable.length)*100):0;
+      if(pct>bestDayPct) bestDayPct=pct;
+      if(pct>=70){ currentStreak++; weekHasData=true; }
+      else{ if(currentStreak>maxStreak) maxStreak=currentStreak; currentStreak=0; weekAllGood=false; }
+    }
+    if(weekAllGood&&weekHasData) hadFullWeek=true;
+    if(weekHasData) weeksActive++;
+  }
+  if(currentStreak>maxStreak) maxStreak=currentStreak;
+  return {totalDone,brushCount,litterCount,maxStreak,bestDayPct,hadFullWeek,weeksActive};
+}
+
+// ─── RENDER ─────────────────────────────────────────────────────────────────
+function renderMetrics(){
+  const w=state.weekOffset;
+  let total=0,done=0;
+  for(let d=0;d<7;d++){
+    const data=getDay(w,d);
+    TASKS.forEach(t=>{if(!t.days.includes(d))return;total++;if(data[t.id])done++;});
+  }
+  const weekPct=total?Math.round((done/total)*100):0;
+  let streak=0;
+  outer:for(let pw=0;pw>=-TOTAL_WEEKS;pw--){
+    const maxD=pw===0?state.selectedDay:6;
+    for(let d=maxD;d>=0;d--){
+      if(getDayCompletion(pw,d)>=70) streak++;
+      else break outer;
+    }
+  }
+  const todayPct=getDayCompletion(w,state.selectedDay);
+  const todayApplicable=TASKS.filter(t=>t.days.includes(state.selectedDay));
+  const todayData=getDay(w,state.selectedDay);
+  const todayDone=todayApplicable.filter(t=>todayData[t.id]).length;
+  const stats=computeStats();
+  const earnedBadges=BADGES.filter(b=>b.check(stats)).length;
+  const m=[
+    {label:'This week',value:weekPct+'%',sub:done+'/'+total+' tasks',cls:weekPct>=70?'good':weekPct>=40?'warn':'bad'},
+    {label:'Day streak',value:streak+'d',sub:streak>=3?'On fire! 🔥':streak>=1?'Keep going':'Start today',cls:streak>=5?'good':streak>=2?'warn':''},
+    {label:'Badges',value:earnedBadges+'/'+BADGES.length,sub:'unlocked',cls:earnedBadges>=6?'good':earnedBadges>=3?'warn':''},
+    {label:'Today',value:todayDone+'/'+todayApplicable.length,sub:DAY_NAMES[state.selectedDay],cls:todayPct>=80?'good':todayPct>=50?'warn':'bad'},
+  ];
+  document.getElementById('metricGrid').innerHTML=m.map(x=>
+    `<div class="metric-card"><div class="mlabel">${x.label}</div><div class="mvalue ${x.cls}">${x.value}</div><div class="msub">${x.sub}</div></div>`
+  ).join('');
+}
+
+function renderDayRow(){
+  const w=state.weekOffset;
+  document.getElementById('dayRow').innerHTML=DAY_NAMES.map((name,d)=>{
+    const pct=getDayCompletion(w,d);
+    const color=getBarColor(pct);
+    const isToday=w===0&&d===todayIdx;
+    const sel=d===state.selectedDay;
+    return `<div class="day-card ${sel?'selected':''} ${isToday?'today-card':''}" onclick="selectDay(${d})">
+      <div class="day-name">${name}</div>
+      <div class="day-pct" style="color:${pct>0?color:'#C8BEB8'}">${pct}%</div>
+      <div class="day-bar-bg"><div class="day-bar-fill" style="height:${pct}%;background:${color}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderChecklist(){
+  const w=state.weekOffset;const d=state.selectedDay;
+  const data=getDay(w,d);
+  const applicable=TASKS.filter(t=>t.days.includes(d));
+  document.getElementById('checkDay').textContent=DAY_NAMES[d];
+  document.getElementById('checklist').innerHTML=applicable.map(t=>{
+    const done=!!data[t.id];
+    return `<div class="task-item ${done?'done':''}" onclick="toggleTask('${t.id}')">
+      <div class="task-check">${done?'✓':''}</div>
+      <div class="task-label">${t.label}</div>
+      <span class="tag ${TAG_CLASS[t.time]}">${TAG_LABEL[t.time]}</span>
+    </div>`;
+  }).join('');
+  const pct=getDayCompletion(w,d);
+  const circ=2*Math.PI*34;
+  document.getElementById('ringFill').style.strokeDashoffset=circ-(pct/100)*circ;
+  document.getElementById('ringFill').style.stroke=getBarColor(pct);
+  const rp=document.getElementById('ringPct');
+  rp.textContent=pct+'%';
+  rp.className=pct>=70?'good':pct>=40?'warn':'bad';
+}
+
+let chartInst=null;
+function renderChart(){
+  const w=state.weekOffset;
+  const pcts=Array.from({length:7},(_,d)=>getDayCompletion(w,d));
+  const colors=pcts.map(getBarColor);
+  const ctx=document.getElementById('weekChart').getContext('2d');
+  if(chartInst) chartInst.destroy();
+  chartInst=new Chart(ctx,{
+    type:'bar',data:{labels:DAY_NAMES,datasets:[{data:pcts,backgroundColor:colors,borderRadius:5,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+'%'}}},
+      scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:9}},grid:{color:'rgba(0,0,0,0.04)'}},x:{ticks:{font:{size:9}},grid:{display:false}}}
+    }
+  });
+}
+
+function renderBadges(){
+  const stats=computeStats();
+  const earned=BADGES.filter(b=>b.check(stats)).length;
+  document.getElementById('badgeCount').textContent=earned+' of '+BADGES.length+' earned';
+  document.getElementById('badgesGrid').innerHTML=BADGES.map(b=>{
+    const e=b.check(stats);
+    return `<div class="badge ${e?'earned':''}">
+      <div class="badge-icon">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-locked">${e?'✅ Unlocked':'🔒 '+b.desc}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderStreaks(){
+  const w=state.weekOffset,d=state.selectedDay;
+  const applicable=TASKS.filter(t=>t.days.includes(d));
+  const items=applicable.map(t=>{
+    let streak=0;
+    outer2:for(let pw=0;pw>=-TOTAL_WEEKS;pw--){
+      const maxD=pw===0?d:6;
+      for(let dd=maxD;dd>=0;dd--){
+        if(!t.days.includes(dd)) continue;
+        if(getDay(pw,dd)[t.id]) streak++;
+        else break outer2;
+      }
+    }
+    return {...t,streak};
+  });
+  document.getElementById('streakList').innerHTML=items.map(t=>{
+    const color=STREAK_COLORS[t.time]||'#888';
+    const bp=Math.min(100,(t.streak/14)*100);
+    const short=t.label.length>26?t.label.slice(0,26)+'…':t.label;
+    return `<div class="streak-item">
+      <div class="streak-dot" style="background:${color}"></div>
+      <div class="streak-name">${short}</div>
+      <div class="streak-bar-bg"><div class="streak-bar-fill" style="width:${bp}%;background:${color}"></div></div>
+      <div class="streak-count" style="color:${t.streak>=3?'#3B6D11':t.streak>=1?'#BA7517':'#C8BEB8'}">${t.streak}d</div>
+    </div>`;
+  }).join('');
+}
+
+function renderFacts(){
+  const c=document.getElementById('factsCarousel');
+  const slides=KITTEN_FACTS.map((f,i)=>
+    `<div class="fact-slide ${i===state.factIdx?'active':''}">
+      <div class="fact-icon">${f.icon}</div>
+      <div><div class="fact-title">${f.title}</div><div class="fact-text">${f.text}</div></div>
+    </div>`
+  ).join('');
+  const dots=KITTEN_FACTS.map((_,i)=>
+    `<div class="fact-dot ${i===state.factIdx?'active':''}" onclick="setFact(${i})"></div>`
+  ).join('');
+  c.innerHTML=slides+`<div class="fact-dots">${dots}</div>
+    <div class="facts-nav">
+      <button onclick="setFact(${(state.factIdx-1+KITTEN_FACTS.length)%KITTEN_FACTS.length})">← Prev</button>
+      <button onclick="setFact(${(state.factIdx+1)%KITTEN_FACTS.length})">Next →</button>
+    </div>`;
+}
+
+function renderFeeding(){
+  const tabs=FEEDING_PHASES.map((p,i)=>
+    `<div class="month-tab ${i===state.feedMonth?'active':''}" onclick="setFeedMonth(${i})">${p.label}</div>`
+  ).join('');
+  document.getElementById('monthTabs').innerHTML=tabs;
+  const p=FEEDING_PHASES[state.feedMonth];
+  document.getElementById('feedContent').innerHTML=`
+    <div class="feed-phase">
+      <div class="feed-phase-label">📍 ${p.label}</div>
+      <div class="feed-phase-title">${p.title}</div>
+      <div class="feed-phase-desc">${p.desc}</div>
+    </div>`;
+}
+
+function renderHeat(){
+  const rows=[];
+  for(let w=-Math.min(25,TOTAL_WEEKS-1);w<=0;w++){
+    const wago=Math.abs(w);
+    const lbl=w===0?'Now':wago===1?'1w':wago<=4?wago+'w':Math.ceil(wago/4.3)+'m';
+    let row=`<div class="heat-row"><div class="heat-row-label">${lbl}</div>`;
+    for(let d=0;d<7;d++){
+      const pct=getDayCompletion(w,d);
+      const a=pct/100;
+      const r=Math.round(234*(1-a)+59*a);
+      const g=Math.round(243*(1-a)+153*a);
+      const b=Math.round(222*(1-a)+34*a);
+      const isSel=w===state.weekOffset&&d===state.selectedDay;
+      row+=`<div class="heat-cell" style="background:rgb(${r},${g},${b});outline:${isSel?'2px solid #FF6B35':'none'};outline-offset:1px" title="${DAY_NAMES[d]}: ${pct}%" onclick="selectDay(${d})"></div>`;
+    }
+    row+='</div>';
+    rows.push(row);
+  }
+  document.getElementById('heatGrid').innerHTML=rows.join('');
+}
+
+function renderWeekLabel(){
+  const o=state.weekOffset;
+  document.getElementById('weekLabel').textContent=o===0?'This week':o===-1?'Last week':Math.abs(o)+'w ago';
+  const now=new Date();
+  const start=new Date(now);start.setDate(now.getDate()-((now.getDay()||7)-1)+o*7);
+  const end=new Date(start);end.setDate(start.getDate()+6);
+  const fmt=d=>d.getDate()+'/'+(d.getMonth()+1);
+  document.getElementById('weekRange').textContent=fmt(start)+' – '+fmt(end);
+}
+
+function renderAll(){
+  renderWeekLabel();renderMetrics();renderDayRow();renderChecklist();
+  renderChart();renderBadges();renderStreaks();renderFacts();renderFeeding();renderHeat();
+}
+
+// ─── INTERACTIONS ───────────────────────────────────────────────────────────
+function selectDay(d){state.selectedDay=d;renderAll();}
+function changeWeek(dir){
+  if(state.weekOffset+dir>0)return;
+  if(state.weekOffset+dir<-(TOTAL_WEEKS-1))return;
+  state.weekOffset+=dir;renderAll();
+}
+function toggleTask(taskId){
+  const w=state.weekOffset,d=state.selectedDay;
+  const data=getDay(w,d);
+  data[taskId]=!data[taskId];
+  setData(w,d,data);
+  renderAll();
+  const applicable=TASKS.filter(t=>t.days.includes(d));
+  if(applicable.every(t=>data[t.id])) setTimeout(confetti,200);
+}
+function setFact(i){state.factIdx=i;renderFacts();}
+function setFeedMonth(i){state.feedMonth=i;renderFeeding();}
+
+function confetti(){
+  const cont=document.getElementById('confettiContainer');
+  const colors=['#FF6B35','#3B6D11','#BA7517','#534AB7','#FFD700'];
+  for(let i=0;i<30;i++){
+    const p=document.createElement('div');
+    p.className='confetti-piece';
+    p.style.cssText=`left:${Math.random()*100}%;background:${colors[i%colors.length]};animation-delay:${Math.random()*0.5}s;animation-duration:${1+Math.random()*0.7}s;`;
+    cont.appendChild(p);
+  }
+  setTimeout(()=>cont.innerHTML='',2500);
+}
+
+// Auto-rotate facts
+setInterval(()=>{ state.factIdx=(state.factIdx+1)%KITTEN_FACTS.length; renderFacts(); }, 8000);
+
+renderAll();
+</script>
+</body>
+</html>
